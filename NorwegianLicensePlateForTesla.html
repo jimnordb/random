@@ -1,125 +1,167 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Norwegian Plate Generator (420x100)</title>
 
   <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 20px; }
-    .row { display: flex; gap: 12px; align-items: end; flex-wrap: wrap; }
-    label { display: block; font-size: 12px; margin-bottom: 6px; color: #333; }
-    input { padding: 8px 10px; font-size: 16px; width: 220px; }
-    button { padding: 9px 12px; font-size: 14px; cursor: pointer; }
-    canvas { display: block; margin-top: 14px; background: #eee; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin: 20px;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+      align-items: end;
+      flex-wrap: wrap;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 6px;
+      color: #333;
+    }
+
+    input {
+      padding: 8px 10px;
+      font-size: 16px;
+      width: 220px;
+    }
+
+    button {
+      padding: 9px 12px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    canvas {
+      display: block;
+      margin-top: 14px;
+      background: #eee;
+    }
   </style>
 </head>
+
 <body>
 
-<h2>Bilskilt til Tesla</h2>
-<section aria-labelledby="lp-instructions" style="max-width: 760px; margin-top: 16px;">
-  <h3 id="lp-instructions" style="margin: 0 0 10px; font-size: 16px; font-weight: 600;">
-    Instruksjoner
-  </h3>
-
-  <div style="display: grid; gap: 14px;">
-    <div>
-      <h4 style="margin: 0 0 8px; font-size: 13px; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase;">
-        Lag bilskiltbildet
-      </h4>
-      <ol style="margin: 0; padding-left: 18px; line-height: 1.55;">
-        <li>Skriv inn registreringsnummeret med kun <strong>bokstaver og tall</strong>.</li>
-        <li>Bildet genereres automatisk i riktig format.</li>
-        <li>Velg <strong>Last ned PNG</strong> for å lagre filen på datamaskinen.</li>
-      </ol>
-      <p style="margin: 8px 0 0; color: #555; line-height: 1.55;">
-        Filnavnet vil samsvare med registreringsnummeret (for eksempel <code style="background:#f3f3f3; padding:2px 5px; border-radius:4px;">EP22222.PNG</code>).
-      </p>
+  <h2>Bilskilt til Tesla</h2>
+  <section>
+    <div class="row">
+      <div>
+        <label for="plate">Plate (letters, digits, whitespace only)</label>
+        <input id="plate" value="EP 22222" autocomplete="off" inputmode="latin" />
+      </div>
+      <button id="downloadBtn">last ned PNG (420x100)</button>
     </div>
+    <canvas id="preview" width="420" height="100"></canvas>
+  </section>
+  <section aria-labelledby="lp-instructions" style="max-width: 760px; margin-top: 16px;">
+    <h3 id="lp-instructions" style="margin: 0 0 10px; font-size: 16px; font-weight: 600;">
+      Instruksjoner
+    </h3>
 
-    <div>
-      <h4 style="margin: 0 0 8px; font-size: 13px; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase;">
-        Legg bildet på Tesla USB-minnepinnen
-      </h4>
-      <ol style="margin: 0; padding-left: 18px; line-height: 1.55;">
-        <li>Ta ut <strong>USB-minnepinnen fra hanskerommet</strong>.</li>
-        <li>Sett USB-minnepinnen inn i datamaskinen.</li>
-        <li>Åpne USB-minnepinnen og opprett en ny mappe med navnet:</li>
-      </ol>
-      <pre style="margin: 10px 0 0; padding: 10px 12px; background: #f3f3f3; border-radius: 6px; overflow: auto;">LicensePlate</pre>
-      <ol start="4" style="margin: 10px 0 0; padding-left: 18px; line-height: 1.55;">
-        <li>Kopier den nedlastede <code style="background:#f3f3f3; padding:2px 5px; border-radius:4px;">.PNG</code>-filen inn i <strong>LicensePlate</strong>-mappen.</li>
-        <li>Løs ut (eject) USB-minnepinnen trygt fra datamaskinen.</li>
-        <li>Sett USB-minnepinnen tilbake i hanskerommet.</li>
-      </ol>
+    <div style="display: grid; gap: 14px;">
+      <div>
+        <h4
+          style="margin: 0 0 8px; font-size: 13px; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase;">
+          Lag bilskiltbildet
+        </h4>
+        <ol style="margin: 0; padding-left: 18px; line-height: 1.55;">
+          <li>Skriv inn registreringsnummeret med kun <strong>bokstaver og tall</strong>.</li>
+          <li>Bildet genereres automatisk i riktig format.</li>
+          <li>Velg <strong>Last ned PNG</strong> for å lagre filen på datamaskinen.</li>
+        </ol>
+        <p style="margin: 8px 0 0; color: #555; line-height: 1.55;">
+          Filnavnet vil samsvare med registreringsnummeret (for eksempel <code
+            style="background:#f3f3f3; padding:2px 5px; border-radius:4px;">EP22222.PNG</code>).
+        </p>
+      </div>
+
+      <div>
+        <h4
+          style="margin: 0 0 8px; font-size: 13px; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase;">
+          Legg bildet på Tesla USB-minnepinnen
+        </h4>
+        <ol style="margin: 0; padding-left: 18px; line-height: 1.55;">
+          <li>Ta ut <strong>USB-minnepinnen fra hanskerommet</strong>.</li>
+          <li>Sett USB-minnepinnen inn i datamaskinen.</li>
+          <li>Åpne USB-minnepinnen og opprett en ny mappe med navnet:</li>
+        </ol>
+        <pre
+          style="margin: 10px 0 0; padding: 10px 12px; background: #f3f3f3; border-radius: 6px; overflow: auto;">LicensePlate</pre>
+        <ol start="4" style="margin: 10px 0 0; padding-left: 18px; line-height: 1.55;">
+          <li>Kopier den nedlastede <code
+              style="background:#f3f3f3; padding:2px 5px; border-radius:4px;">.PNG</code>-filen inn i
+            <strong>LicensePlate</strong>-mappen.
+          </li>
+          <li>Løs ut (eject) USB-minnepinnen trygt fra datamaskinen.</li>
+          <li>Sett USB-minnepinnen tilbake i hanskerommet.</li>
+        </ol>
+      </div>
+
+      <div>
+        <h4
+          style="margin: 0 0 8px; font-size: 13px; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase;">
+          Bruk bildet i bilen
+        </h4>
+        <p style="margin: 0; line-height: 1.55;">
+          Når USB-minnepinnen er satt inn igjen, vil bilskiltbildet være tilgjengelig for bruk i bilen der dette
+          støttes.
+        </p>
+      </div>
     </div>
+  </section>
 
-    <div>
-      <h4 style="margin: 0 0 8px; font-size: 13px; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase;">
-        Bruk bildet i bilen
-      </h4>
-      <p style="margin: 0; line-height: 1.55;">
-        Når USB-minnepinnen er satt inn igjen, vil bilskiltbildet være tilgjengelig for bruk i bilen der dette støttes.
-      </p>
-    </div>
-  </div>
-</section>
-<div class="row">
-  <div>
-    <label for="plate">Plate (letters, digits, whitespace only)</label>
-    <input id="plate" value="EP 22222" autocomplete="off" inputmode="latin" />
-  </div>
-  <button id="downloadBtn">last ned PNG (420x100)</button>
-</div>
+  <script>
+    (() => {
+      const OUT_W = 420, OUT_H = 100;
+      const SCALE = 4;
 
-<canvas id="preview" width="420" height="100"></canvas>
+      const WHITE_MARGIN = 2; // px
+      const BORDER_W = 3;     // px
 
-<script>
-(() => {
-  const OUT_W = 420, OUT_H = 100;
-  const SCALE = 4;
+      const FONT_STACK = `"Myriad Pro","Myriad","Myriad Web Pro",Arial,Helvetica,sans-serif`;
 
-  const WHITE_MARGIN = 2; // px
-  const BORDER_W = 3;     // px
+      const preview = document.getElementById("preview");
+      const pctx = preview.getContext("2d", { alpha: true });
 
-  const FONT_STACK = `"Myriad Pro","Myriad","Myriad Web Pro",Arial,Helvetica,sans-serif`;
+      const off = document.createElement("canvas");
+      off.width = OUT_W * SCALE;
+      off.height = OUT_H * SCALE;
+      const ctx = off.getContext("2d", { alpha: true });
 
-  const preview = document.getElementById("preview");
-  const pctx = preview.getContext("2d", { alpha: true });
+      const plateInput = document.getElementById("plate");
 
-  const off = document.createElement("canvas");
-  off.width = OUT_W * SCALE;
-  off.height = OUT_H * SCALE;
-  const ctx = off.getContext("2d", { alpha: true });
+      function sanitizeInput(raw) {
+        // Allow: letters (including ÆØÅ), digits, whitespace. Strip everything else.
+        // Uppercase; collapse multiple spaces.
+        const cleaned = (raw || "")
+          .toUpperCase()
+          .replace(/[^0-9A-ZÆØÅ\s]/g, "")
+          .replace(/\s+/g, " ")
+          .trim();
+        return cleaned;
+      }
 
-  const plateInput = document.getElementById("plate");
+      function formatPlateForDisplay(raw) {
+        // If user typed "EP22222", format as "EP 22222" for display and filename logic.
+        const s = sanitizeInput(raw).replace(/\s+/g, " ");
+        const m = s.replace(/\s/g, "").match(/^([A-ZÆØÅ]{2})(\d{5})$/);
+        return m ? `${m[1]} ${m[2]}` : s;
+      }
 
-  function sanitizeInput(raw) {
-    // Allow: letters (including ÆØÅ), digits, whitespace. Strip everything else.
-    // Uppercase; collapse multiple spaces.
-    const cleaned = (raw || "")
-      .toUpperCase()
-      .replace(/[^0-9A-ZÆØÅ\s]/g, "")
-      .replace(/\s+/g, " ")
-      .trim();
-    return cleaned;
-  }
+      function plateToFilename(plateDisplayText) {
+        // Remove whitespace, keep letters/digits only, add .PNG
+        const base = sanitizeInput(plateDisplayText).replace(/\s+/g, "");
+        return `${base || "PLATE"}.PNG`;
+      }
 
-  function formatPlateForDisplay(raw) {
-    // If user typed "EP22222", format as "EP 22222" for display and filename logic.
-    const s = sanitizeInput(raw).replace(/\s+/g, " ");
-    const m = s.replace(/\s/g, "").match(/^([A-ZÆØÅ]{2})(\d{5})$/);
-    return m ? `${m[1]} ${m[2]}` : s;
-  }
-
-  function plateToFilename(plateDisplayText) {
-    // Remove whitespace, keep letters/digits only, add .PNG
-    const base = sanitizeInput(plateDisplayText).replace(/\s+/g, "");
-    return `${base || "PLATE"}.PNG`;
-  }
-
-  function createNorwayFlagSvg() {
-    const svg = `
+      function createNorwayFlagSvg() {
+        const svg = `
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 16">
         <rect width="22" height="16" fill="#D8202A"/>
         <rect x="6" y="0" width="4" height="16" fill="#FFFFFF"/>
@@ -128,133 +170,134 @@
         <rect x="0" y="7" width="22" height="2" fill="#003087"/>
       </svg>
     `.trim();
-    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
-  }
-
-  const flagImg = new Image();
-  const flagReady = new Promise((resolve) => {
-    flagImg.onload = () => resolve(true);
-    flagImg.onerror = () => resolve(false);
-  });
-  flagImg.src = createNorwayFlagSvg();
-
-  async function ensureFontsLoaded() {
-    if (!document.fonts) return;
-    await Promise.allSettled([
-      document.fonts.load(`800 ${60 * SCALE}px ${FONT_STACK}`),
-      document.fonts.load(`800 ${34 * SCALE}px ${FONT_STACK}`),
-      document.fonts.ready
-    ]);
-  }
-
-  let renderLock = null;
-
-  async function render() {
-    if (renderLock) return renderLock;
-
-    renderLock = (async () => {
-      await Promise.all([ensureFontsLoaded(), flagReady]);
-
-      // Display formatting used for both rendering and filename logic
-      const displayText = formatPlateForDisplay(plateInput.value);
-
-      // Ensure the input box reflects the sanitized/formatted version consistently
-      if (plateInput.value !== displayText) plateInput.value = displayText;
-
-      ctx.clearRect(0, 0, off.width, off.height);
-
-      const wm = WHITE_MARGIN * SCALE;
-      const bw = BORDER_W * SCALE;
-
-      const plateX = wm, plateY = wm;
-      const plateW = off.width - wm * 2;
-      const plateH = off.height - wm * 2;
-
-      // Plate fill
-      ctx.fillStyle = "#FFFFFF";
-      ctx.fillRect(plateX, plateY, plateW, plateH);
-
-      // Border
-      ctx.strokeStyle = "#000";
-      ctx.lineWidth = bw;
-      const inset = bw / 2;
-      ctx.strokeRect(plateX + inset, plateY + inset, plateW - bw, plateH - bw);
-
-      const contentX = plateX + bw;
-      const contentY = plateY + bw;
-      const contentH = plateH - bw * 2;
-
-      // Blue band
-      const bandW = 70 * SCALE;
-      ctx.fillStyle = "#0B4EA2";
-      ctx.fillRect(contentX, contentY, bandW, contentH);
-
-      // Flag (sharp corners)
-      if (flagImg.complete && flagImg.naturalWidth) {
-        ctx.drawImage(
-          flagImg,
-          contentX + 12 * SCALE,
-          contentY + 12 * SCALE,
-          46 * SCALE,
-          30 * SCALE
-        );
+        return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
       }
 
-      // N
-      ctx.fillStyle = "#FFFFFF";
-      ctx.font = `800 ${34 * SCALE}px ${FONT_STACK}`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText("N", contentX + bandW / 2, contentY + contentH * 0.73);
+      const flagImg = new Image();
+      const flagReady = new Promise((resolve) => {
+        flagImg.onload = () => resolve(true);
+        flagImg.onerror = () => resolve(false);
+      });
+      flagImg.src = createNorwayFlagSvg();
 
-      // Plate text
-      ctx.fillStyle = "#111";
-      ctx.font = `800 ${60 * SCALE}px ${FONT_STACK}`;
-      ctx.textAlign = "left";
-      ctx.textBaseline = "alphabetic";
-      ctx.fillText(
-        displayText,
-        contentX + bandW + 18 * SCALE,
-        contentY + contentH * 0.80
-      );
+      async function ensureFontsLoaded() {
+        if (!document.fonts) return;
+        await Promise.allSettled([
+          document.fonts.load(`800 ${60 * SCALE}px ${FONT_STACK}`),
+          document.fonts.load(`800 ${34 * SCALE}px ${FONT_STACK}`),
+          document.fonts.ready
+        ]);
+      }
 
-      // Downscale
-      pctx.clearRect(0, 0, OUT_W, OUT_H);
-      pctx.imageSmoothingEnabled = true;
-      pctx.imageSmoothingQuality = "high";
-      pctx.drawImage(off, 0, 0, OUT_W, OUT_H);
+      let renderLock = null;
 
-      return displayText;
-    })().finally(() => {
-      renderLock = null;
-    });
+      async function render() {
+        if (renderLock) return renderLock;
 
-    return renderLock;
-  }
+        renderLock = (async () => {
+          await Promise.all([ensureFontsLoaded(), flagReady]);
 
-  async function downloadPNG() {
-    const displayText = await render();
-    const url = preview.toDataURL("image/png");
+          // Display formatting used for both rendering and filename logic
+          const displayText = formatPlateForDisplay(plateInput.value);
 
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = plateToFilename(displayText);
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  }
+          // Ensure the input box reflects the sanitized/formatted version consistently
+          if (plateInput.value !== displayText) plateInput.value = displayText;
 
-  // Enforce allowed characters on input in real time
-  plateInput.addEventListener("input", () => {
-    const sanitized = sanitizeInput(plateInput.value);
-    if (plateInput.value !== sanitized) plateInput.value = sanitized;
-    render();
-  });
+          ctx.clearRect(0, 0, off.width, off.height);
 
-  document.getElementById("downloadBtn").addEventListener("click", downloadPNG);
+          const wm = WHITE_MARGIN * SCALE;
+          const bw = BORDER_W * SCALE;
 
-  render();
-})();
-</script>
+          const plateX = wm, plateY = wm;
+          const plateW = off.width - wm * 2;
+          const plateH = off.height - wm * 2;
+
+          // Plate fill
+          ctx.fillStyle = "#FFFFFF";
+          ctx.fillRect(plateX, plateY, plateW, plateH);
+
+          // Border
+          ctx.strokeStyle = "#000";
+          ctx.lineWidth = bw;
+          const inset = bw / 2;
+          ctx.strokeRect(plateX + inset, plateY + inset, plateW - bw, plateH - bw);
+
+          const contentX = plateX + bw;
+          const contentY = plateY + bw;
+          const contentH = plateH - bw * 2;
+
+          // Blue band
+          const bandW = 70 * SCALE;
+          ctx.fillStyle = "#0B4EA2";
+          ctx.fillRect(contentX, contentY, bandW, contentH);
+
+          // Flag (sharp corners)
+          if (flagImg.complete && flagImg.naturalWidth) {
+            ctx.drawImage(
+              flagImg,
+              contentX + 12 * SCALE,
+              contentY + 12 * SCALE,
+              46 * SCALE,
+              30 * SCALE
+            );
+          }
+
+          // N
+          ctx.fillStyle = "#FFFFFF";
+          ctx.font = `800 ${34 * SCALE}px ${FONT_STACK}`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText("N", contentX + bandW / 2, contentY + contentH * 0.73);
+
+          // Plate text
+          ctx.fillStyle = "#111";
+          ctx.font = `800 ${60 * SCALE}px ${FONT_STACK}`;
+          ctx.textAlign = "left";
+          ctx.textBaseline = "alphabetic";
+          ctx.fillText(
+            displayText,
+            contentX + bandW + 18 * SCALE,
+            contentY + contentH * 0.80
+          );
+
+          // Downscale
+          pctx.clearRect(0, 0, OUT_W, OUT_H);
+          pctx.imageSmoothingEnabled = true;
+          pctx.imageSmoothingQuality = "high";
+          pctx.drawImage(off, 0, 0, OUT_W, OUT_H);
+
+          return displayText;
+        })().finally(() => {
+          renderLock = null;
+        });
+
+        return renderLock;
+      }
+
+      async function downloadPNG() {
+        const displayText = await render();
+        const url = preview.toDataURL("image/png");
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = plateToFilename(displayText);
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
+
+      // Enforce allowed characters on input in real time
+      plateInput.addEventListener("input", () => {
+        const sanitized = sanitizeInput(plateInput.value);
+        if (plateInput.value !== sanitized) plateInput.value = sanitized;
+        render();
+      });
+
+      document.getElementById("downloadBtn").addEventListener("click", downloadPNG);
+
+      render();
+    })();
+  </script>
 </body>
+
 </html>
