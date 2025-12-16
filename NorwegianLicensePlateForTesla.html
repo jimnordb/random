@@ -306,11 +306,10 @@
           // Plate text
           ctx.fillStyle = "#111";
           const basePlateFontPx = BASE_TEXT_SIZE * SCALE;
-          const textStartX = contentX + bandW + TEXT_LEFT_PAD * SCALE;
-          const textMaxWidth = Math.max(
-            contentX + contentW - TEXT_RIGHT_PAD * SCALE - textStartX,
-            10
-          );
+          const textAreaStart = contentX + bandW + TEXT_LEFT_PAD * SCALE;
+          const textAreaEnd = contentX + contentW - TEXT_RIGHT_PAD * SCALE;
+          const textAreaWidth = Math.max(textAreaEnd - textAreaStart, 10);
+          const textMaxWidth = textAreaWidth;
           let plateFontPx = basePlateFontPx;
           ctx.font = `800 ${plateFontPx}px ${FONT_STACK}`;
           let metrics = ctx.measureText(displayText);
@@ -326,6 +325,8 @@
           }
           ctx.textAlign = "left";
           ctx.textBaseline = "alphabetic";
+          const horizOffset = Math.max((textAreaWidth - metrics.width) / 2, 0);
+          const textStartX = textAreaStart + horizOffset;
           const plateBaseline = computeBaseline(metrics, plateFontPx, areaMidY);
           ctx.fillText(
             displayText,
