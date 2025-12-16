@@ -5,10 +5,13 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Norwegian Plate Generator (420x100)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=block" rel="stylesheet" />
 
   <style>
     body {
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-family: "Montserrat", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       margin: 20px;
     }
 
@@ -129,10 +132,40 @@
       const OUT_W = 420, OUT_H = 100;
       const SCALE = 4;
 
-      const WHITE_MARGIN = 2; // px
-      const BORDER_W = 3;     // px
+      const WHITE_MARGIN = 2;    // px
+      const BORDER_W = 3;        // px
+      const BAND_W = 70;         // px @1x
+      const TEXT_LEFT_PAD = 12;  // px between band and letters
+      const TEXT_RIGHT_PAD = 12; // px to right border
+      const BASE_TEXT_SIZE = 60; // px @1x
+      const MAX_TEXT_SCALE = 1.35;
 
-      const FONT_STACK = `"Myriad Pro","Myriad","Myriad Web Pro",Arial,Helvetica,sans-serif`;
+      const PRIMARY_FONT = `"Montserrat"`;
+      const FONT_STACK = `${PRIMARY_FONT},"Myriad Pro","Myriad","Myriad Web Pro",Arial,Helvetica,sans-serif`;
+      const fontDescriptors = [
+        `800 ${60 * SCALE}px ${PRIMARY_FONT}`,
+        `800 ${34 * SCALE}px ${PRIMARY_FONT}`,
+        `600 16px ${PRIMARY_FONT}`,
+        `400 16px ${PRIMARY_FONT}`
+      ];
+      const fontsReadyPromise = document.fonts
+        ? (async () => {
+            await Promise.all(fontDescriptors.map((desc) => document.fonts.load(desc)));
+            await new Promise((resolve) => {
+              const schedule = typeof requestAnimationFrame === "function"
+                ? requestAnimationFrame
+                : (cb) => setTimeout(cb, 50);
+              const verify = () => {
+                if (fontDescriptors.every((desc) => document.fonts.check(desc))) {
+                  resolve();
+                } else {
+                  schedule(verify);
+                }
+              };
+              verify();
+            });
+        })()
+        : Promise.resolve();
 
       const preview = document.getElementById("preview");
       const pctx = preview.getContext("2d", { alpha: true });
@@ -189,12 +222,19 @@
       flagImg.src = createNorwayFlagSvg();
 
       async function ensureFontsLoaded() {
-        if (!document.fonts) return;
-        await Promise.allSettled([
-          document.fonts.load(`800 ${60 * SCALE}px ${FONT_STACK}`),
-          document.fonts.load(`800 ${34 * SCALE}px ${FONT_STACK}`),
-          document.fonts.ready
-        ]);
+        await fontsReadyPromise;
+      }
+
+
+      function computeBaseline(metrics, fontPx, centerY, offsetPx = 0) {
+        const ascent = Number.isFinite(metrics.actualBoundingBoxAscent)
+          ? metrics.actualBoundingBoxAscent
+          : fontPx * 0.78;
+        const descent = Number.isFinite(metrics.actualBoundingBoxDescent)
+          ? metrics.actualBoundingBoxDescent
+          : fontPx * 0.22;
+        const textHalf = (ascent + descent) / 2;
+        return centerY + (textHalf - descent) + offsetPx;
       }
 
       let renderLock = null;
@@ -232,10 +272,13 @@
 
           const contentX = plateX + bw;
           const contentY = plateY + bw;
+          const contentW = plateW - bw * 2;
           const contentH = plateH - bw * 2;
 
+          const areaMidY = contentY + contentH / 2;
+
           // Blue band
-          const bandW = 70 * SCALE;
+          const bandW = BAND_W * SCALE;
           ctx.fillStyle = "#0B4EA2";
           ctx.fillRect(contentX, contentY, bandW, contentH);
 
@@ -252,20 +295,42 @@
 
           // N
           ctx.fillStyle = "#FFFFFF";
-          ctx.font = `800 ${34 * SCALE}px ${FONT_STACK}`;
+          const nFontPx = 28 * SCALE;
+          ctx.font = `800 ${nFontPx}px ${FONT_STACK}`;
           ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillText("N", contentX + bandW / 2, contentY + contentH * 0.73);
+          ctx.textBaseline = "alphabetic";
+          const nMetrics = ctx.measureText("N");
+          const nBaseline = computeBaseline(nMetrics, nFontPx, areaMidY, 25 * SCALE);
+          ctx.fillText("N", contentX + bandW / 2, nBaseline);
 
           // Plate text
           ctx.fillStyle = "#111";
-          ctx.font = `800 ${60 * SCALE}px ${FONT_STACK}`;
+          const basePlateFontPx = BASE_TEXT_SIZE * SCALE;
+          const textStartX = contentX + bandW + TEXT_LEFT_PAD * SCALE;
+          const textMaxWidth = Math.max(
+            contentX + contentW - TEXT_RIGHT_PAD * SCALE - textStartX,
+            10
+          );
+          let plateFontPx = basePlateFontPx;
+          ctx.font = `800 ${plateFontPx}px ${FONT_STACK}`;
+          let metrics = ctx.measureText(displayText);
+          if (metrics.width > 0) {
+            const widthRatio = textMaxWidth / metrics.width;
+            const scale =
+              widthRatio > 1
+                ? Math.min(widthRatio, MAX_TEXT_SCALE)
+                : widthRatio;
+            plateFontPx = plateFontPx * Math.max(scale, 0.1);
+            ctx.font = `800 ${plateFontPx}px ${FONT_STACK}`;
+            metrics = ctx.measureText(displayText);
+          }
           ctx.textAlign = "left";
           ctx.textBaseline = "alphabetic";
+          const plateBaseline = computeBaseline(metrics, plateFontPx, areaMidY);
           ctx.fillText(
             displayText,
-            contentX + bandW + 18 * SCALE,
-            contentY + contentH * 0.80
+            textStartX,
+            plateBaseline
           );
 
           // Downscale
